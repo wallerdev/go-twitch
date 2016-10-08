@@ -5,6 +5,7 @@ package twitch
 
 import (
 	"fmt"
+
 	"github.com/google/go-querystring/query"
 )
 
@@ -97,6 +98,13 @@ func (c *ChannelsMethod) Follows(name string, opt *ListOptions) (*FollowsS, erro
 	}
 
 	follow := new(FollowsS)
+	_, err := c.client.Get(rel, follow)
+	return follow, err
+}
+
+func (c *ChannelsMethod) AccessToken(name string) (*AccessTokenS, error) {
+	rel := "channels/" + name + "/access_token"
+	follow := new(AccessTokenS)
 	_, err := c.client.Get(rel, follow)
 	return follow, err
 }
