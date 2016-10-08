@@ -12,9 +12,10 @@ import (
 const rootURL = "https://api.twitch.tv/kraken/"
 
 type Client struct {
-	client   *http.Client
-	BaseURL  *url.URL
-	ClientId string
+	client      *http.Client
+	BaseURL     *url.URL
+	AppInfo     *AppInfo
+	AccessToken string
 
 	// Twitch api methods
 	Channels *ChannelsMethod
@@ -26,14 +27,25 @@ type Client struct {
 	Teams    *TeamsMethod
 	Users    *UsersMethod
 	Videos   *VideosMethod
+
+	// OAuth
+	Auth          *AuthMethods
+	OAuthResponse *OAuthResponse
+}
+
+type AppInfo struct {
+	ClientID     string `url:"client_id"`
+	ClientSecret string `url:"client_secret"`
+	State        string `url:"state"`
+	RedirectURI  string `url:"redirect_uri"`
+	Scope        string `url:"scope"`
 }
 
 // Returns a new twitch client used to communicate with the API.
 func NewClient(httpClient *http.Client) *Client {
 	baseURL, _ := url.Parse(rootURL)
 
-	clientId := os.Getenv("GO_TWITCH_CLIENTID")
-	c := &Client{client: httpClient, BaseURL: baseURL, ClientId: clientId}
+	c := &Client{client: httpClient, BaseURL: baseURL}
 	c.Channels = &ChannelsMethod{client: c}
 	c.Chat = &ChatMethod{client: c}
 	c.Games = &GamesMethod{client: c}
@@ -43,6 +55,20 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Teams = &TeamsMethod{client: c}
 	c.Users = &UsersMethod{client: c}
 	c.Videos = &VideosMethod{client: c}
+	c.Auth = &AuthMethods{client: c}
+
+	clientId := os.Getenv("GO_TWITCH_CLIENTID")
+	clientSecret := os.Getenv("GO_TWITCH_CLIENTSECRET")
+	state := os.Getenv("GO_TWITCH_CLIENTID")
+	redirectURL := os.Getenv("GO_TWITCH_REDIRECTURL")
+	scope := os.Getenv("GO_TWITCH_SCOPE")
+
+	c.AppInfo = &AppInfo{}
+	c.AppInfo.ClientID = clientId
+	c.AppInfo.ClientSecret = clientSecret
+	c.AppInfo.State = state
+	c.AppInfo.RedirectURI = redirectURL
+	c.AppInfo.Scope = scope
 
 	return c
 }
@@ -66,10 +92,14 @@ func (c *Client) Get(path string, r interface{}) (*http.Response, error) {
 	}
 	req.Header.Add("Accept", "application/vnd.twitchtv.v2+json")
 
-	if len(c.ClientId) != 0 {
-		req.Header.Add("Client-ID", c.ClientId)
-
+	if len(c.AppInfo.ClientID) != 0 {
+		req.Header.Add("Client-ID", c.AppInfo.ClientID)
 	}
+
+	if len(c.AccessToken) != 0 {
+		req.Header.Add("Authorization", "OAuth "+c.AccessToken)
+	}
+
 	resp, err := c.client.Do(req)
 
 	if err != nil {
