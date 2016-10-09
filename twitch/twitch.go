@@ -3,6 +3,7 @@ package twitch
 import (
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -117,4 +118,86 @@ func (c *Client) Get(path string, r interface{}) (*http.Response, error) {
 	}
 
 	return resp, err
+}
+
+// Issues an API get request and returns the API response. The response body is
+// decoded and stored in the value pointed by r.
+func (c *Client) GetAPI(path string, r interface{}) (*http.Response, error) {
+	rel, err := url.Parse(path)
+
+	if err != nil {
+		return nil, err
+	}
+
+	baseURL, _ := url.Parse("https://api.twitch.tv/api/")
+	u := baseURL.ResolveReference(rel)
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+
+	if err != nil {
+		return nil, err
+
+	}
+	req.Header.Add("Accept", "application/vnd.twitchtv.v2+json")
+
+	if len(c.AppInfo.ClientID) != 0 {
+		req.Header.Add("Client-ID", c.AppInfo.ClientID)
+	}
+
+	if len(c.AccessToken) != 0 {
+		req.Header.Add("Authorization", "OAuth "+c.AccessToken)
+	}
+
+	resp, err := c.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNotModified {
+		return nil, errors.New("api error, response code: " + strconv.Itoa(resp.StatusCode))
+	}
+
+	defer resp.Body.Close()
+
+	if r != nil {
+		err = json.NewDecoder(resp.Body).Decode(r)
+	}
+
+	return resp, err
+}
+
+// Issues an API get request and returns the API response. The response body is
+// decoded and stored in the value pointed by r.
+func (c *Client) GetUsher(path string) (string, error) {
+	rel, err := url.Parse(path)
+
+	if err != nil {
+		return "", err
+	}
+
+	baseURL, _ := url.Parse("https://usher.ttvnw.net/api/")
+	u := baseURL.ResolveReference(rel)
+
+	req, err := http.NewRequest("GET", u.String(), nil)
+
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := c.client.Do(req)
+
+	if err != nil {
+		return "", err
+	}
+
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNotModified {
+		return "", errors.New("api error, response code: " + strconv.Itoa(resp.StatusCode))
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+
+	return string(body), err
 }

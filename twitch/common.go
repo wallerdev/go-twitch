@@ -128,3 +128,13 @@ type ListOptions struct {
 	Hls        *bool  `url:"hls,omitempty"`
 	Live       *bool  `url:"live,omitempty"`
 }
+
+type M3U8Options struct {
+	Token          string `url:"token,omitempty"`
+	Sig            string `url:"sig,omitempty"`
+	Player         string `url:"player,omitempty"`
+	AllowAudioOnly bool   `url:"$allow_audio_only"`
+	AllowSource    bool   `url:"allow_source"`
+	Type           string `url:"type,omitempty"`
+	Random         int    `url:"p,omitempty"`
+}

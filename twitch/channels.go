@@ -5,6 +5,7 @@ package twitch
 
 import (
 	"fmt"
+	"math/rand"
 
 	"github.com/google/go-querystring/query"
 )
@@ -45,6 +46,37 @@ type SubS struct {
 
 type ChannelsMethod struct {
 	client *Client
+}
+
+// type ChanSubS struct {
+// 	ViewUntil          int      `json:"view_until,omitempty"`
+// 	RestrictedBitrates []string `json:"restricted_bitrates"` // needs double checking
+// }
+
+// type PrivateS struct {
+// 	AllowedToView bool `json:"allowed_to_view,omitempty"`
+// }
+
+// type TokenS struct {
+// 	Adblock          bool     `json:"adblock"`
+// 	PlayerType       *string  `json:"player_type"` // needs double checking
+// 	Platform         *string  `json:"platform"`    // needs double checking
+// 	UserID           *string  `json:"user_id"`     // needs double checking
+// 	Channel          string   `json:"channel"`
+// 	Expires          int      `json:"expires,omitempty"`
+// 	Chansub          ChanSubS `json:"chansub,omitempty"`
+// 	Private          PrivateS `json:"private,omitempty"`
+// 	Privileged       bool     `json:"privileged,omitempty"`
+// 	SourceRestricted bool     `json:"source_restricted,omitempty"`
+// 	HTTPSRequired    bool     `json:"https_required,omitempty"`
+// 	ShowAds          bool     `json:"show_ads,omitempty"`
+// 	DeviceID         string   `json:"device_id"`
+// }
+
+type AccessTokenS struct {
+	Sig              string `json:"sig,omitempty"`
+	MobileRestricted bool   `json:"mobile_restricted"`
+	Token            string `json:"token,omitempty"`
 }
 
 // Returns a channel object. If `name` is an empty string, returns the channel
@@ -104,9 +136,28 @@ func (c *ChannelsMethod) Follows(name string, opt *ListOptions) (*FollowsS, erro
 
 func (c *ChannelsMethod) AccessToken(name string) (*AccessTokenS, error) {
 	rel := "channels/" + name + "/access_token"
-	follow := new(AccessTokenS)
-	_, err := c.client.Get(rel, follow)
-	return follow, err
+	accessToken := new(AccessTokenS)
+	_, err := c.client.GetAPI(rel, accessToken)
+	return accessToken, err
+}
+
+func (c *ChannelsMethod) M3U8(name string, opt *M3U8Options) (string, error) {
+	rel := fmt.Sprintf("channel/hls/%s.m3u8", name)
+
+	if opt != nil {
+		opt.AllowAudioOnly = true
+		opt.AllowSource = true
+		opt.Type = "any"
+		opt.Random = rand.Int()
+		opt.Player = "twitchweb"
+		v, err := query.Values(opt)
+		if err != nil {
+			return "", err
+		}
+		rel += "?" + v.Encode()
+	}
+
+	return c.client.GetUsher(rel)
 }
 
 func (c *ChannelsMethod) subscriptions(name string, opt *ListOptions) (*SubsS, error) {
