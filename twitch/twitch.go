@@ -138,7 +138,7 @@ func (c *Client) GetAPI(path string, r interface{}) (*http.Response, error) {
 		return nil, err
 
 	}
-	req.Header.Add("Accept", "application/vnd.twitchtv.v2+json")
+	req.Header.Add("Accept", "application/vnd.twitchtv.v5+json")
 
 	if len(c.AppInfo.ClientID) != 0 {
 		req.Header.Add("Client-ID", c.AppInfo.ClientID)
