@@ -49,15 +49,11 @@ type TeamS struct {
 
 // Stream oject
 type StreamS struct {
-	Id          int      `json:"_id,omitempty"`
-	Game        string   `json:"game,omitempty"`
-	Name        string   `json:"name,omitempty"`
-	Preview     string   `json:"preview,omitempty"`
-	Viewers     int      `json:"viewers,omitempty"`
-	Broadcaster string   `json:"broadcaster,omitempty"`
-	Geo         string   `json:"geo,omitempty"`
-	Channel     ChannelS `json:"channel,omitempty"`
-	Status      string   `json:"status,omitempty"`
+	Id      int      `json:"_id,omitempty"`
+	Game    string   `json:"game,omitempty"`
+	Preview PreviewS `json:"preview,omitempty"`
+	Viewers int      `json:"viewers,omitempty"`
+	Channel ChannelS `json:"channel,omitempty"`
 }
 
 // User object
