@@ -28,6 +28,8 @@ type ChannelS struct {
 	Logo                         string        `json:"logo,omitempty"`
 	Url                          string        `json:"url,omitempty"`
 	DisplayName                  string        `json:"display_name,omitempty"`
+	Language                     string        `json:"language,omitempty"`
+	BroadcasterLanguage          string        `json:"broadcaster_language,omitempty"`
 	// authenticated
 	StreamKey string `json:"stream_key,omitempty"`
 	Login     string `json:"login,omitempty"`
