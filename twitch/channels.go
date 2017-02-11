@@ -33,6 +33,23 @@ type FollowS struct {
 	User UserS `json:"user,omitempty"`
 }
 
+type PanelDataS struct {
+	Link        string `json:"link,omitempty"`
+	Image       string `json:"image,omitempty"`
+	Title       string `json:"title,omitempty"`
+	Description string `json:"description,omitempty"`
+}
+
+type PanelS struct {
+	Id              int        `json:"_id,omitempty"`
+	DisplayOrder    int        `json:"display_order,omitempty"`
+	Kind            string     `json:"kind,omitempty"`
+	HtmlDescription string     `json:"html_description,omitempty"`
+	UserId          int        `json:"user_id,omitempty"`
+	Data            PanelDataS `json:"data,omitempty"`
+	Channel         string     `json:"channel,omitempty"`
+}
+
 type SubsS struct {
 	Total         int    `json:"_total,omitempty"`
 	Links         LinksS `json:"_links,omitempty"`
@@ -132,6 +149,22 @@ func (c *ChannelsMethod) Follows(name string, opt *ListOptions) (*FollowsS, erro
 	follow := new(FollowsS)
 	_, err := c.client.Get(rel, follow)
 	return follow, err
+}
+
+// Returns the list of panels the channel `name` has.
+func (c *ChannelsMethod) Panels(name string, opt *ListOptions) (*[]PanelS, error) {
+	rel := "channels/" + name + "/panels"
+	if opt != nil {
+		v, err := query.Values(opt)
+		if err != nil {
+			return nil, err
+		}
+		rel += "?" + v.Encode()
+	}
+
+	panels := new([]PanelS)
+	_, err := c.client.GetAPI(rel, panels)
+	return panels, err
 }
 
 func (c *ChannelsMethod) AccessToken(name string) (*AccessTokenS, error) {
