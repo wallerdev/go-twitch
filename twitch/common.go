@@ -30,6 +30,7 @@ type ChannelS struct {
 	DisplayName                  string        `json:"display_name,omitempty"`
 	Language                     string        `json:"language,omitempty"`
 	BroadcasterLanguage          string        `json:"broadcaster_language,omitempty"`
+
 	// authenticated
 	StreamKey string `json:"stream_key,omitempty"`
 	Login     string `json:"login,omitempty"`
@@ -51,11 +52,20 @@ type TeamS struct {
 
 // Stream oject
 type StreamS struct {
-	Id      int      `json:"_id,omitempty"`
-	Game    string   `json:"game,omitempty"`
-	Preview PreviewS `json:"preview,omitempty"`
-	Viewers int      `json:"viewers,omitempty"`
-	Channel ChannelS `json:"channel,omitempty"`
+	Id                int      `json:"_id,omitempty"`
+	Game              string   `json:"game,omitempty"`
+	Preview           PreviewS `json:"preview,omitempty"`
+	Viewers           int      `json:"viewers,omitempty"`
+	Channel           ChannelS `json:"channel,omitempty"`
+	VideoHeight       int      `json:"video_height,omitempty"`
+	AverageFPS        float64  `json:"average_fps,omitempty"`
+	Delay             int      `json:"delay,omitempty"`
+	BroadcastPlatform string   `json:"broadcast_platform,omitempty"`
+	CommunityId       string   `json:"community_id,omitempty"`
+	CommunityIds      []string `json:"community_ids,omitempty"`
+	CreatedAt         string   `json:"created_at,omitempty"`
+	IsPlaylist        bool     `json:"is_playlist"`
+	StreamType        string   `json:"stream_type,omitempty"`
 }
 
 // User object
